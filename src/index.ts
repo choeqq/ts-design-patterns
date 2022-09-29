@@ -15,18 +15,23 @@ interface Database<T extends BaseRecord> {
   get(id: string): T | undefined;
 }
 
-class InMemoryDatabase<T extends BaseRecord> implements Database<T> {
-  private db: Record<string, T> = {};
+// Factory pattern
+function createDatabase<T extends BaseRecord>() {
+  class InMemoryDatabase implements Database<T> {
+    private db: Record<string, T> = {};
 
-  public set(newValue: T): void {
-    this.db[newValue.id] = newValue;
+    public set(newValue: T): void {
+      this.db[newValue.id] = newValue;
+    }
+    public get(id: string): T {
+      return this.db[id];
+    }
   }
-  public get(id: string): T {
-    return this.db[id];
-  }
+  return InMemoryDatabase;
 }
 
-const pokemonDB = new InMemoryDatabase<Pokemon>();
+const PokemonDB = createDatabase<Pokemon>();
+const pokemonDB = new PokemonDB();
 pokemonDB.set({
   id: "Bulbosaur",
   attack: 50,
