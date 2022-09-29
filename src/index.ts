@@ -27,11 +27,13 @@ function createDatabase<T extends BaseRecord>() {
       return this.db[id];
     }
   }
-  return InMemoryDatabase;
+
+  // Singleton
+  const db = new InMemoryDatabase();
+  return db;
 }
 
-const PokemonDB = createDatabase<Pokemon>();
-const pokemonDB = new PokemonDB();
+const pokemonDB = createDatabase<Pokemon>();
 pokemonDB.set({
   id: "Bulbosaur",
   attack: 50,
