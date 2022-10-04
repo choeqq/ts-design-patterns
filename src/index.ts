@@ -48,6 +48,8 @@ interface Database<T extends BaseRecord> {
   onAfterAdd(listener: Listener<AfterSetEvent<T>>): () => void;
 
   visit(visitor: (item: T) => void): void;
+
+  selectBest(scoreStratedy: (item: T) => number): T | undefined;
 }
 
 // Factory pattern
