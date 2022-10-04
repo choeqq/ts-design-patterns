@@ -46,6 +46,8 @@ interface Database<T extends BaseRecord> {
 
   onBeforeAdd(listener: Listener<BeforeSetEvent<T>>): () => void;
   onAfterAdd(listener: Listener<AfterSetEvent<T>>): () => void;
+
+  visit(visitor: (item: T) => void): void;
 }
 
 // Factory pattern
@@ -78,6 +80,11 @@ function createDatabase<T extends BaseRecord>() {
     onAfterAdd(listener: Listener<AfterSetEvent<T>>): () => void {
       return this.afterAddListeners.subscribe(listener);
     }
+
+    // Visitor Pattern
+    visit(visitor: (item: T) => void): void {
+      Object.values(this.db).forEach(visitor);
+    }
   }
 
   // Singleton pattern
@@ -103,4 +110,8 @@ pokemonDB.set({
   defense: 30,
 });
 
-console.log(pokemonDB.get("Bulbosaur"));
+// console.log(pokemonDB.get("Bulbosaur"));
+
+pokemonDB.visit((item) => {
+  console.log(item.id);
+});
