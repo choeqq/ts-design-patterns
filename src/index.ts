@@ -85,6 +85,28 @@ function createDatabase<T extends BaseRecord>() {
     visit(visitor: (item: T) => void): void {
       Object.values(this.db).forEach(visitor);
     }
+
+    // Strategy
+    selectBest(scoreStratedy: (item: T) => number): T | undefined {
+      const found: {
+        max: number;
+        item: T | undefined;
+      } = {
+        max: 0,
+        item: undefined,
+      };
+
+      Object.values(this.db).reduce((f, item) => {
+        const score = scoreStratedy(item);
+        if (score > f.max) {
+          f.max = score;
+          f.item = item;
+        }
+        return f;
+      }, found);
+
+      return found.item;
+    }
   }
 
   // Singleton pattern
@@ -97,7 +119,7 @@ const pokemonDB = createDatabase<Pokemon>();
 pokemonDB.set({
   id: "Bulbosaur",
   attack: 50,
-  defense: 10,
+  defense: 50,
 });
 
 pokemonDB.onAfterAdd(({ value }) => {
@@ -112,6 +134,12 @@ pokemonDB.set({
 
 // console.log(pokemonDB.get("Bulbosaur"));
 
-pokemonDB.visit((item) => {
-  console.log(item.id);
-});
+// pokemonDB.visit((item) => {
+//   console.log(item.id);
+// });
+
+const bestDefense = pokemonDB.selectBest(({ defense }) => defense);
+const bestAttack = pokemonDB.selectBest(({ attack }) => attack);
+
+console.log("Best attack: " + bestAttack?.id);
+console.log("Best defense: " + bestDefense?.id);
