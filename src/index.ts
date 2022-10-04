@@ -100,7 +100,7 @@ function createDatabase<T extends BaseRecord>() {
 
       Object.values(this.db).reduce((f, item) => {
         const score = scoreStratedy(item);
-        if (score > f.max) {
+        if (score >= f.max) {
           f.max = score;
           f.item = item;
         }
@@ -118,15 +118,26 @@ function createDatabase<T extends BaseRecord>() {
 
 const pokemonDB = createDatabase<Pokemon>();
 
+// Adapter pattern
+class PokemonDBAdapter implements RecordHandler<Pokemon> {
+  addRecord(record: Pokemon): void {
+    pokemonDB.set(record);
+  }
+}
+
+const unsubscribe = pokemonDB.onAfterAdd(({ value }) => {
+  console.log(value);
+});
+
+loader("./data.json", new PokemonDBAdapter());
+
 pokemonDB.set({
   id: "Bulbosaur",
   attack: 50,
   defense: 50,
 });
 
-pokemonDB.onAfterAdd(({ value }) => {
-  console.log(value);
-});
+unsubscribe();
 
 pokemonDB.set({
   id: "Pikachu",
@@ -140,8 +151,8 @@ pokemonDB.set({
 //   console.log(item.id);
 // });
 
-const bestDefense = pokemonDB.selectBest(({ defense }) => defense);
-const bestAttack = pokemonDB.selectBest(({ attack }) => attack);
+// const bestDefense = pokemonDB.selectBest(({ defense }) => defense);
+// const bestAttack = pokemonDB.selectBest(({ attack }) => attack);
 
-console.log("Best attack: " + bestAttack?.id);
-console.log("Best defense: " + bestDefense?.id);
+// console.log("Best attack: " + bestAttack?.id);
+// console.log("Best defense: " + bestDefense?.id);
